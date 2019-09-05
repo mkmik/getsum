@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/base32"
 	"fmt"
 	"html/template"
 	"log"
@@ -51,7 +52,8 @@ func handler(w http.ResponseWriter, r *http.Request) {
 			scheme = "http"
 		}
 		dom := strings.SplitN(r.Host, ":", 2)[0]
-		meta = fmt.Sprintf(`<meta name="go-import" content="%s/%s mod %s://%s">`, dom, r.URL.Path[1:], scheme, r.Host)
+		mod := escapeModule(r.URL.Path[1:])
+		meta = fmt.Sprintf(`<meta name="go-import" content="%s/%s mod %s://%s">`, dom, mod, scheme, r.Host)
 	}
 
 	body := fmt.Sprintf(`
@@ -67,6 +69,21 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		reportError(w, r, err)
 		return
 	}
+}
+
+func escapeModule(path string) string {
+	cn := strings.Split(path, "/")
+	host := cn[0]
+	rest := cn[1:]
+
+	for i := range rest {
+		rest[i] = toBase32(rest[i])
+	}
+	return fmt.Sprint(host, "/", strings.Join(rest, "/"))
+}
+
+func toBase32(s string) string {
+	return strings.ToLower(base32.StdEncoding.WithPadding(base32.NoPadding).EncodeToString([]byte(s)))
 }
 
 func reportError(w http.ResponseWriter, r *http.Request, err error) {
