@@ -15,12 +15,14 @@ import (
 )
 
 const (
-	fixedVersion = "v0.0.2"
-	proxyURL     = "https://proxy.golang.org"
+	fixedVersion    = "v0.0.2"
+	defaultProxyURL = "https://proxy.golang.org"
 )
 
 var (
 	oracleModPath = flag.String("oracle", "", "override Go module (repo) of the oracle")
+
+	proxyURL = defaultProxyURL
 )
 
 func usage() {
@@ -58,12 +60,17 @@ func run(artifactURL string, oracleModPath string) error {
 }
 
 func downloadModuleZip(w io.Writer, oracleModPath string) error {
-	resp, err := http.Get(fmt.Sprintf("%s/%s/@v/%s.zip", proxyURL, oracleModPath, fixedVersion))
+	t := &http.Transport{}
+	t.RegisterProtocol("file", http.NewFileTransport(http.Dir("/")))
+	c := &http.Client{Transport: t}
+
+	u := fmt.Sprintf("%s/%s/@v/%s.zip", proxyURL, oracleModPath, fixedVersion)
+	resp, err := c.Get(u)
 	if err != nil {
 		return err
 	}
 	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("got bad status %q", resp.Status)
+		return fmt.Errorf("got bad status %q while fetching: %s", resp.Status, u)
 	}
 	defer resp.Body.Close()
 
@@ -115,6 +122,10 @@ func main() {
 
 	if flag.NArg() != 1 {
 		usage()
+	}
+
+	if p, ok := os.LookupEnv("GOPROXY"); ok {
+		proxyURL = p
 	}
 
 	if err := run(flag.Arg(0), *oracleModPath); err != nil {
