@@ -50,7 +50,8 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		if strings.HasPrefix(r.Host, "localhost:") {
 			scheme = "http"
 		}
-		meta = fmt.Sprintf(`<meta name="go-import" content="%s mod %s://%s">`, r.URL.Path[1:], scheme, r.Host)
+		dom := strings.SplitN(r.Host, ":", 2)[0]
+		meta = fmt.Sprintf(`<meta name="go-import" content="%s/%s mod %s://%s">`, dom, r.URL.Path[1:], scheme, r.Host)
 	}
 
 	body := fmt.Sprintf(`
