@@ -1,13 +1,13 @@
 ## Install
 
 ```bash
-GO111MODULE=on go get getsum.pub/getsum@v0.0.5
+$ GO111MODULE=on go get getsum.pub/getsum@v0.0.5
 ```
 
 ## Usage
 
 ```bash
-getsum https://some.com/url/to/a/file
+$ getsum https://some.com/url/to/a/file
 ```
 
 `getsum` returns the hash of a file. The hash is fetched by `getsum.pub` by reading `https://some.com/url/to/a/file.sha256` and falling back to `https://some.com/url/to/a/SHA256SUM` (we'll add more ways to seeding the hash; although we're likeley keep avoiding downloading large files from the internet)
