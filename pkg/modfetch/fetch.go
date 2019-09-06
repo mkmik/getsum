@@ -31,7 +31,7 @@ func init() {
 func DownloadModuleZip(modulePath, version string) (string, error) {
 	w, err := ioutil.TempFile("", "*.zip")
 	if err != nil {
-		return "", nil
+		return "", err
 	}
 	defer w.Close()
 
@@ -42,7 +42,7 @@ func DownloadModuleZip(modulePath, version string) (string, error) {
 
 	resp, err := client.Get(u)
 	if err != nil {
-		return "", nil
+		return "", err
 	}
 	if resp.StatusCode != http.StatusOK {
 		return "", fmt.Errorf("got bad status %q while fetching: %s", resp.Status, u)
@@ -50,12 +50,12 @@ func DownloadModuleZip(modulePath, version string) (string, error) {
 	defer resp.Body.Close()
 
 	if _, err := io.Copy(w, resp.Body); err != nil {
-		return "", nil
+		return "", err
 	}
 	w.Close()
 
 	if err := verifyModuleZip(w.Name(), modulePath, version); err != nil {
-		return "", nil
+		return "", err
 	}
 	return w.Name(), nil
 }
