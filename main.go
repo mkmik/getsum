@@ -8,6 +8,7 @@ import (
 
 	"github.com/mkmik/getsum/pkg/getsum"
 	"github.com/mkmik/getsum/pkg/modfetch"
+	"github.com/mkmik/getsum/pkg/oracle"
 )
 
 var (
@@ -26,7 +27,7 @@ func run(artifactURL string, oracleModPath string) error {
 	}
 	defer os.RemoveAll(oracleZip)
 
-	o, err := parseOracle(oracleZip)
+	o, err := oracle.ParseFromZip(oracleZip)
 	if err != nil {
 		return err
 	}

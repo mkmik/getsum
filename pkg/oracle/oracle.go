@@ -1,4 +1,4 @@
-package main
+package oracle
 
 import (
 	"archive/zip"
@@ -30,7 +30,9 @@ func (o *oracle) Hash(url string) (string, error) {
 	return "", fmt.Errorf("cannot find hash for URL: %q", url)
 }
 
-func parseOracle(zipFileName string) (*oracle, error) {
+// ParseFromZip parses an oracle from a zip file.
+// The Zip file should contain a Go module, archived as defined by the goproxy protocol.
+func ParseFromZip(zipFileName string) (*oracle, error) {
 	zf, err := os.Open(zipFileName)
 	if err != nil {
 		return nil, err
