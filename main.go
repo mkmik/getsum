@@ -6,7 +6,7 @@ import (
 	"log"
 	"os"
 
-	"getsum.pub/getsum/pkg/getsum"
+	"getsum.pub/getsum/pkg/manifest"
 	"getsum.pub/getsum/pkg/modfetch"
 	"getsum.pub/getsum/pkg/oracle"
 )
@@ -21,7 +21,7 @@ func usage() {
 }
 
 func run(artifactURL string, oracleModPath string) error {
-	oracleZip, err := modfetch.DownloadModuleZip(oracleModPath, getsum.CanonicalVersion)
+	oracleZip, err := modfetch.DownloadModuleZip(oracleModPath, manifest.CanonicalVersion)
 	if err != nil {
 		return err
 	}
