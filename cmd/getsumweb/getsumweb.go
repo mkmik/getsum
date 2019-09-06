@@ -149,7 +149,7 @@ func handleProxy(w http.ResponseWriter, r *http.Request) {
 }
 
 func fetchHash(artifactURL string) (string, error) {
-	u := artifactURL + ".sha256sum"
+	u := artifactURL + ".sha256"
 	resp, err := http.Get(u)
 	if err != nil {
 		return "", err
