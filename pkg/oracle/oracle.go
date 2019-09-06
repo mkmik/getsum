@@ -2,15 +2,18 @@ package oracle
 
 import (
 	"archive/zip"
+	"encoding/base32"
 	"fmt"
 	"go/ast"
 	"go/parser"
 	"go/token"
 	"io"
 	"io/ioutil"
+	"net/url"
 	"os"
 	"path"
 	"strconv"
+	"strings"
 )
 
 type oracle struct {
@@ -59,6 +62,28 @@ func ParseFromZip(zipFileName string) (*oracle, error) {
 		}
 	}
 	return nil, fmt.Errorf("cannot find main.go in oracle")
+}
+
+// EncodeURLToModule encodes an arbitrary URL into a form that is compatible with Go module/import paths.
+func EncodeURLToModulePath(u string) (string, error) {
+	ur, err := url.Parse(u)
+	if err != nil {
+		return "", err
+	}
+
+	rest := strings.Split(ur.Path, "/")[1:]
+	for i := range rest {
+		rest[i] = toBase32(rest[i])
+	}
+	p := fmt.Sprint(ur.Host, "/", strings.Join(rest, "/"))
+	if strings.HasSuffix(p, "/") {
+		return "", fmt.Errorf("directories not supported")
+	}
+	return p, nil
+}
+
+func toBase32(s string) string {
+	return strings.ToLower(base32.StdEncoding.WithPadding(base32.NoPadding).EncodeToString([]byte(s)))
 }
 
 func parseOracleMain(r io.Reader) (*oracle, error) {

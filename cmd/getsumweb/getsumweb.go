@@ -1,13 +1,14 @@
 package main
 
 import (
-	"encoding/base32"
 	"fmt"
 	"html/template"
 	"log"
 	"net/http"
 	"os"
 	"strings"
+
+	"github.com/mkmik/getsum/pkg/oracle"
 )
 
 var (
@@ -52,7 +53,11 @@ func handler(w http.ResponseWriter, r *http.Request) {
 			scheme = "http"
 		}
 		dom := strings.SplitN(r.Host, ":", 2)[0]
-		mod := escapeModule(r.URL.Path[1:])
+		mod, err := oracle.EncodeURLToModulePath("https://" + r.URL.Path[1:])
+		if err != nil {
+			reportError(w, r, err)
+			return
+		}
 		meta = fmt.Sprintf(`<meta name="go-import" content="%s/%s mod %s://%s">`, dom, mod, scheme, r.Host)
 	}
 
@@ -69,21 +74,6 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		reportError(w, r, err)
 		return
 	}
-}
-
-func escapeModule(path string) string {
-	cn := strings.Split(path, "/")
-	host := cn[0]
-	rest := cn[1:]
-
-	for i := range rest {
-		rest[i] = toBase32(rest[i])
-	}
-	return fmt.Sprint(host, "/", strings.Join(rest, "/"))
-}
-
-func toBase32(s string) string {
-	return strings.ToLower(base32.StdEncoding.WithPadding(base32.NoPadding).EncodeToString([]byte(s)))
 }
 
 func reportError(w http.ResponseWriter, r *http.Request, err error) {
