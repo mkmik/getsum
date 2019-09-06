@@ -137,7 +137,7 @@ func EncodeURLToModulePath(u string) (string, error) {
 	for i := range rest {
 		rest[i] = toBase32(rest[i])
 	}
-	p := fmt.Sprint(ur.Host, "/", strings.Join(rest, "/"))
+	p := fmt.Sprintf("getsum.pub/%s/%s/%s", ur.Scheme, ur.Host, strings.Join(rest, "/"))
 	if strings.HasSuffix(p, "/") {
 		return "", fmt.Errorf("directories not supported")
 	}
@@ -147,7 +147,7 @@ func EncodeURLToModulePath(u string) (string, error) {
 // DecodeURLFromModulePath is the inverse of EncodeURLToModulePath.
 func DecodeURLFromModulePath(modulePath string) (string, error) {
 	c := strings.Split(modulePath, "/")
-	rest := c[1:]
+	rest := c[3:]
 	var err error
 	for i := range rest {
 		rest[i], err = fromBase32(rest[i])
@@ -156,7 +156,7 @@ func DecodeURLFromModulePath(modulePath string) (string, error) {
 
 		}
 	}
-	return fmt.Sprintf("https://%s/%s", c[0], strings.Join(rest, "/")), nil
+	return fmt.Sprintf("%s://%s/%s", c[1], c[2], strings.Join(rest, "/")), nil
 }
 
 var base32Encoding = base32.StdEncoding.WithPadding(base32.NoPadding)

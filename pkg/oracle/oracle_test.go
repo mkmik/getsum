@@ -13,11 +13,14 @@ func TestEncodeURLToModulePath(t *testing.T) {
 	}{
 		{
 			url: "https://github.com/bitnami-labs/sealed-secrets/releases/download/v0.8.3/kubeseal-darwin-amd64",
-			enc: "github.com/mjuxi3tbnvus23dbmjzq/onswc3dfmqwxgzldojsxi4y/ojswyzlbonsxg/mrxxo3tmn5qwi/oyyc4obogm/nn2wezltmvqwyllemfzho2lofvqw2zbwgq",
+			enc: "getsum.pub/https/github.com/mjuxi3tbnvus23dbmjzq/onswc3dfmqwxgzldojsxi4y/ojswyzlbonsxg/mrxxo3tmn5qwi/oyyc4obogm/nn2wezltmvqwyllemfzho2lofvqw2zbwgq",
+		},
+		{
+			url: "http://foobar.com/a/b",
+			enc: "getsum.pub/http/foobar.com/me/mi",
 		},
 		{
 			url: "https://github.com",
-			enc: "github.com/",
 			err: "directories not supported",
 		},
 	}
@@ -34,17 +37,25 @@ func TestEncodeURLToModulePath(t *testing.T) {
 }
 
 func TestDecodeURLToModulePath(t *testing.T) {
-	const want = "https://github.com/bitnami-labs/sealed-secrets/releases/download/v0.8.3/kubeseal-darwin-amd64"
-	m, err := EncodeURLToModulePath(want)
-	if err != nil {
-		t.Fatal(err)
+	testCases := []string{
+		"https://github.com/bitnami-labs/sealed-secrets/releases/download/v0.8.3/kubeseal-darwin-amd64",
+		"http://foobar.com/a/b",
 	}
 
-	got, err := DecodeURLFromModulePath(m)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if got != want {
-		t.Errorf("got: %q, want: %q", got, want)
+	for _, tc := range testCases {
+		t.Run(tc, func(t *testing.T) {
+			m, err := EncodeURLToModulePath(tc)
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			got, err := DecodeURLFromModulePath(m)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if want := tc; got != want {
+				t.Errorf("got: %q, want: %q", got, want)
+			}
+		})
 	}
 }

@@ -51,11 +51,6 @@ type mainTemplateData struct {
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
-	if p, m, ok := matchProxyURL(r); ok {
-		handleProxy(w, r, p, m)
-		return
-	}
-
 	var goImportContent string
 
 	if strings.SplitN(r.URL.Path[1:], "/", 2)[0] == "getsum" {
@@ -65,13 +60,8 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		if strings.HasPrefix(r.Host, "localhost:") {
 			scheme = "http"
 		}
-		dom := strings.SplitN(r.Host, ":", 2)[0]
-		mod, err := oracle.EncodeURLToModulePath("https://" + r.URL.Path[1:])
-		if err != nil {
-			reportError(w, r, err)
-			return
-		}
-		goImportContent = fmt.Sprintf("%s/%s mod %s://%s", dom, mod, scheme, r.Host)
+		mod := r.URL.Path[1:]
+		goImportContent = fmt.Sprintf("%s mod %s://%s/@proxy/", mod, scheme, r.Host)
 	}
 
 	var meta string
@@ -94,7 +84,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-var proxyMethodRegexp = regexp.MustCompile(`^/(.*)/@v/(.*)$`)
+var proxyMethodRegexp = regexp.MustCompile(`^/@proxy/(.*)/@v/(.*)$`)
 
 func matchProxyURL(r *http.Request) (string, string, bool) {
 	s := proxyMethodRegexp.FindStringSubmatch(r.URL.Path)
@@ -104,9 +94,15 @@ func matchProxyURL(r *http.Request) (string, string, bool) {
 	return s[1], s[2], true
 }
 
-func handleProxy(w http.ResponseWriter, r *http.Request, modulePath, method string) {
+func handleProxy(w http.ResponseWriter, r *http.Request) {
+	modulePath, method, ok := matchProxyURL(r)
+	if !ok {
+		http.Error(w, "unknown proxy url", http.StatusNotFound)
+		return
+	}
+
 	if method == "list" {
-		fmt.Println(manifest.CanonicalVersion)
+		fmt.Fprintln(w, manifest.CanonicalVersion)
 		return
 	}
 
@@ -132,7 +128,10 @@ func handleProxy(w http.ResponseWriter, r *http.Request, modulePath, method stri
 	case ".mod":
 		err = oracle.WriteGoMod(w, modulePath)
 	case ".zip":
-		err = oracle.WriteZip(w, modulePath, version, map[string]string{"http://foo.com": "1234"})
+		u, err := oracle.DecodeURLFromModulePath(modulePath)
+		if err == nil {
+			err = oracle.WriteZip(w, modulePath, version, map[string]string{u: "1234fake321sha"})
+		}
 	default:
 		fmt.Fprintf(w, "unknown extension %q\n", ext)
 	}
@@ -152,6 +151,7 @@ func reportError(w http.ResponseWriter, r *http.Request, err error) {
 func main() {
 	http.Handle("/robots.txt", http.NotFoundHandler())
 	http.Handle("/favicon.ico", http.NotFoundHandler())
+	http.HandleFunc("/@proxy/", handleProxy)
 	http.HandleFunc("/", handler)
 
 	port := os.Getenv("PORT")
