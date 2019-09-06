@@ -30,11 +30,6 @@ func run(artifactURL string, oracleModPath string) error {
 		}
 	}
 
-	if *dryRun {
-		log.Printf("not fetching %q because of try run", oracleModPath)
-		return nil
-	}
-
 	oracleZip, err := modfetch.DownloadModuleZip(oracleModPath, manifest.CanonicalVersion)
 	if err != nil {
 		return err
@@ -66,6 +61,7 @@ func main() {
 	if p, ok := os.LookupEnv("GOPROXY"); ok {
 		modfetch.ProxyURL = p
 	}
+	modfetch.DryRun = *dryRun
 
 	if err := run(flag.Arg(0), *oracleModPath); err != nil {
 		log.Fatal(err)

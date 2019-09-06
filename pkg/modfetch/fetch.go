@@ -16,6 +16,7 @@ const (
 
 var (
 	ProxyURL = DefaultProxyURL
+	DryRun   = false
 
 	client = &http.Client{}
 )
@@ -35,6 +36,10 @@ func DownloadModuleZip(modulePath, version string) (string, error) {
 	defer w.Close()
 
 	u := fmt.Sprintf("%s/%s/@v/%s.zip", ProxyURL, modulePath, version)
+	if DryRun {
+		return "", fmt.Errorf("dry run: GET %s", u)
+	}
+
 	resp, err := client.Get(u)
 	if err != nil {
 		return "", nil
