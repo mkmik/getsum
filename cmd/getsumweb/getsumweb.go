@@ -162,7 +162,7 @@ func fetchHash(artifactURL string) (string, error) {
 	var buf strings.Builder
 	io.Copy(&buf, resp.Body)
 
-	return strings.TrimSpace(buf.String()), nil
+	return strings.TrimSpace(strings.SplitN(buf.String(), " ", 1)[0]), nil
 }
 
 func reportError(w http.ResponseWriter, r *http.Request, err error) {
