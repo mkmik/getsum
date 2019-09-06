@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"html/template"
+	"io"
 	"log"
 	"net/http"
 	"os"
@@ -129,15 +130,39 @@ func handleProxy(w http.ResponseWriter, r *http.Request) {
 		err = oracle.WriteGoMod(w, modulePath)
 	case ".zip":
 		u, err := oracle.DecodeURLFromModulePath(modulePath)
-		if err == nil {
-			err = oracle.WriteZip(w, modulePath, version, map[string]string{u: "1234fake321sha"})
+		if err != nil {
+			reportError(w, r, err)
+			return
 		}
+		h, err := fetchHash(u)
+		if err != nil {
+			reportError(w, r, err)
+			return
+		}
+		err = oracle.WriteZip(w, modulePath, version, map[string]string{u: h})
 	default:
 		fmt.Fprintf(w, "unknown extension %q\n", ext)
 	}
 	if err != nil {
 		reportError(w, r, err)
 	}
+}
+
+func fetchHash(artifactURL string) (string, error) {
+	u := artifactURL + ".sha256sum"
+	resp, err := http.Get(u)
+	if err != nil {
+		return "", err
+	}
+	if resp.StatusCode != http.StatusOK {
+		return "", fmt.Errorf("got bad status %q while fetching: %s", resp.Status, u)
+	}
+	defer resp.Body.Close()
+
+	var buf strings.Builder
+	io.Copy(&buf, resp.Body)
+
+	return strings.TrimSpace(buf.String()), nil
 }
 
 func reportError(w http.ResponseWriter, r *http.Request, err error) {
