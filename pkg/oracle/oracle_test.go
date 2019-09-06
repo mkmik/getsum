@@ -32,3 +32,19 @@ func TestEncodeURLToModulePath(t *testing.T) {
 		}
 	}
 }
+
+func TestDecodeURLToModulePath(t *testing.T) {
+	const want = "https://github.com/bitnami-labs/sealed-secrets/releases/download/v0.8.3/kubeseal-darwin-amd64"
+	m, err := EncodeURLToModulePath(want)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	got, err := DecodeURLFromModulePath(m)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got != want {
+		t.Errorf("got: %q, want: %q", got, want)
+	}
+}

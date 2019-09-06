@@ -1,13 +1,18 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"html/template"
 	"log"
 	"net/http"
 	"os"
+	"path"
+	"regexp"
 	"strings"
+	"time"
 
+	"getsum.pub/getsum/pkg/manifest"
 	"getsum.pub/getsum/pkg/oracle"
 )
 
@@ -46,6 +51,11 @@ type mainTemplateData struct {
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
+	if p, m, ok := matchProxyURL(r); ok {
+		handleProxy(w, r, p, m)
+		return
+	}
+
 	var goImportContent string
 
 	if strings.SplitN(r.URL.Path[1:], "/", 2)[0] == "getsum" {
@@ -81,6 +91,53 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		reportError(w, r, err)
 		return
+	}
+}
+
+var proxyMethodRegexp = regexp.MustCompile(`^/(.*)/@v/(.*)$`)
+
+func matchProxyURL(r *http.Request) (string, string, bool) {
+	s := proxyMethodRegexp.FindStringSubmatch(r.URL.Path)
+	if s == nil {
+		return "", "", false
+	}
+	return s[1], s[2], true
+}
+
+func handleProxy(w http.ResponseWriter, r *http.Request, modulePath, method string) {
+	if method == "list" {
+		fmt.Println(manifest.CanonicalVersion)
+		return
+	}
+
+	ext := path.Ext(method)
+	version := method[:len(method)-len(ext)]
+
+	if version != manifest.CanonicalVersion {
+		http.Error(w, fmt.Sprintf("unknown revision %s", version), http.StatusNotFound)
+		return
+	}
+
+	var err error
+	switch ext {
+	case ".info":
+		info := struct {
+			Version string    // version string
+			Time    time.Time // commit time
+		}{
+			Version: manifest.CanonicalVersion,
+			// Time: epoch
+		}
+		err = json.NewEncoder(w).Encode(info)
+	case ".mod":
+		err = oracle.WriteGoMod(w, modulePath)
+	case ".zip":
+		err = oracle.WriteZip(w, modulePath, version, map[string]string{"http://foo.com": "1234"})
+	default:
+		fmt.Fprintf(w, "unknown extension %q\n", ext)
+	}
+	if err != nil {
+		reportError(w, r, err)
 	}
 }
 

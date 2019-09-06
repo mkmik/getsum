@@ -33,6 +33,68 @@ func (o *oracle) Hash(url string) (string, error) {
 	return "", fmt.Errorf("cannot find hash for URL: %q", url)
 }
 
+// WriteGoMod writes a go.mod file for an oracle.
+func WriteGoMod(w io.Writer, modulePath string) error {
+	_, err := fmt.Fprintf(w,
+		`module %s
+
+go 1.13
+
+require getsum.pub/getsum v0.0.4
+`, modulePath)
+	return err
+}
+
+// WriteZip generates a Go module body containing an oracle declaring hashes for one or more URLs.
+func WriteZip(w io.Writer, modulePath, version string, hashes map[string]string) error {
+	z := zip.NewWriter(w)
+	defer z.Close()
+
+	dir := fmt.Sprintf("%s@%s", modulePath, version)
+
+	mod, err := z.Create(path.Join(dir, "go.mod"))
+	if err != nil {
+		return err
+	}
+	if err := WriteGoMod(mod, modulePath); err != nil {
+		return err
+	}
+
+	main, err := z.Create(path.Join(dir, "main.go"))
+	if err != nil {
+		return err
+	}
+	if err := writeMainGo(main, hashes); err != nil {
+		return err
+	}
+	return nil
+}
+
+func writeMainGo(w io.Writer, hashes map[string]string) error {
+	if got, want := len(hashes), 1; got != want {
+		return fmt.Errorf("unsupported map len %d, want: %d", got, want)
+	}
+
+	// take the first and only url
+	var u string
+	for k := range hashes {
+		u = k
+	}
+
+	_, err := fmt.Fprintf(w, `package main
+
+import "getsum.pub/getsum/pkg/manifest"
+
+func main() {
+	manifest.File(
+		%q,
+		%q,
+	)
+}
+`, u, hashes[u])
+	return err
+}
+
 // ParseFromZip parses an oracle from a zip file.
 // The Zip file should contain a Go module, archived as defined by the goproxy protocol.
 func ParseFromZip(zipFileName string) (*oracle, error) {
@@ -82,8 +144,33 @@ func EncodeURLToModulePath(u string) (string, error) {
 	return p, nil
 }
 
+// DecodeURLFromModulePath is the inverse of EncodeURLToModulePath.
+func DecodeURLFromModulePath(modulePath string) (string, error) {
+	c := strings.Split(modulePath, "/")
+	rest := c[1:]
+	var err error
+	for i := range rest {
+		rest[i], err = fromBase32(rest[i])
+		if err != nil {
+			return "", err
+
+		}
+	}
+	return fmt.Sprintf("https://%s/%s", c[0], strings.Join(rest, "/")), nil
+}
+
+var base32Encoding = base32.StdEncoding.WithPadding(base32.NoPadding)
+
 func toBase32(s string) string {
-	return strings.ToLower(base32.StdEncoding.WithPadding(base32.NoPadding).EncodeToString([]byte(s)))
+	return strings.ToLower(base32Encoding.EncodeToString([]byte(s)))
+}
+
+func fromBase32(b string) (string, error) {
+	r, err := base32Encoding.DecodeString(strings.ToUpper(b))
+	if err != nil {
+		return "", fmt.Errorf("error while decoding %q: %v", b, err)
+	}
+	return string(r), nil
 }
 
 func parseOracleMain(r io.Reader) (*oracle, error) {
