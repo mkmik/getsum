@@ -6,9 +6,9 @@ import (
 	"log"
 	"os"
 
-	"github.com/mkmik/getsum/pkg/getsum"
-	"github.com/mkmik/getsum/pkg/modfetch"
-	"github.com/mkmik/getsum/pkg/oracle"
+	"getsum.pub/getsum/pkg/getsum"
+	"getsum.pub/getsum/pkg/modfetch"
+	"getsum.pub/getsum/pkg/oracle"
 )
 
 var (

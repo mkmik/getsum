@@ -1,4 +1,4 @@
-module github.com/mkmik/getsum
+module getsum.pub/getsum
 
 go 1.13
 

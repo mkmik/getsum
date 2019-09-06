@@ -8,7 +8,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/mkmik/getsum/pkg/oracle"
+	"getsum.pub/getsum/pkg/oracle"
 )
 
 var (
@@ -46,9 +46,11 @@ type mainTemplateData struct {
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
-	var goImportContent, preBody string
+	var goImportContent string
 
-	if len(r.URL.Path) > 1 {
+	if r.URL.Path == "/getsum" {
+		goImportContent = "getsum.pub git https://github.com/mkmik/getsum"
+	} else if len(r.URL.Path) > 1 {
 		scheme := "https"
 		if strings.HasPrefix(r.Host, "localhost:") {
 			scheme = "http"
@@ -60,16 +62,13 @@ func handler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		goImportContent = fmt.Sprintf("%s/%s mod %s://%s", dom, mod, scheme, r.Host)
-		preBody = goImportContent
-	} else {
-		goImportContent = "getsum.pub git https://github.com/mkmik/getsum"
 	}
 
 	meta := fmt.Sprintf(`<meta name="go-import" content="%s">`, goImportContent)
 
 	body := fmt.Sprintf(`
 	<p>TODO</p>
-	<pre>%s</pre>`, template.HTMLEscapeString(preBody))
+	<pre>%s</pre>`, template.HTMLEscapeString(goImportContent))
 
 	data := &mainTemplateData{
 		Head: template.HTML(meta),
