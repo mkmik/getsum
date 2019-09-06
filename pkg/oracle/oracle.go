@@ -106,6 +106,10 @@ func parseOracleMain(r io.Reader) (*oracle, error) {
 	var vis astVisitor
 	ast.Walk(&vis, top)
 
+	if vis.url == "" {
+		return nil, fmt.Errorf("cannot find a manifest declaration in main.go")
+	}
+
 	return newOracleForFile(vis.url, vis.hash), vis.err
 }
 
@@ -129,7 +133,7 @@ func (v *astVisitor) Visit(node ast.Node) (w ast.Visitor) {
 		if c, ok := n.X.(*ast.CallExpr); ok {
 			if s, ok := c.Fun.(*ast.SelectorExpr); ok {
 				if mod, ok := s.X.(*ast.Ident); ok {
-					if mod.Name == "getsum" && s.Sel.Name == "File" {
+					if mod.Name == "manifest" && s.Sel.Name == "File" {
 						v.url, v.hash, v.err = parseFileAST(c.Args)
 					}
 				}
