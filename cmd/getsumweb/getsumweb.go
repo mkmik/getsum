@@ -46,7 +46,8 @@ type mainTemplateData struct {
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
-	var meta string
+	var goImportContent, preBody string
+
 	if len(r.URL.Path) > 1 {
 		scheme := "https"
 		if strings.HasPrefix(r.Host, "localhost:") {
@@ -58,12 +59,17 @@ func handler(w http.ResponseWriter, r *http.Request) {
 			reportError(w, r, err)
 			return
 		}
-		meta = fmt.Sprintf(`<meta name="go-import" content="%s/%s mod %s://%s">`, dom, mod, scheme, r.Host)
+		goImportContent = fmt.Sprintf("%s/%s mod %s://%s", dom, mod, scheme, r.Host)
+		preBody = goImportContent
+	} else {
+		goImportContent = "getsum.pub git https://github.com/mkmik/getsum"
 	}
+
+	meta := fmt.Sprintf(`<meta name="go-import" content="%s">`, goImportContent)
 
 	body := fmt.Sprintf(`
 	<p>TODO</p>
-	<pre>%s</pre>`, template.HTMLEscapeString(meta))
+	<pre>%s</pre>`, template.HTMLEscapeString(preBody))
 
 	data := &mainTemplateData{
 		Head: template.HTML(meta),
