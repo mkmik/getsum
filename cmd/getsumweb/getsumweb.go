@@ -61,7 +61,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 			scheme = "http"
 		}
 		mod := r.URL.Path[1:]
-		goImportContent = fmt.Sprintf("%s mod %s://%s/@proxy/", mod, scheme, r.Host)
+		goImportContent = fmt.Sprintf("getsum.pub/%s mod %s://%s/@proxy/", mod, scheme, r.Host)
 	}
 
 	var meta string
