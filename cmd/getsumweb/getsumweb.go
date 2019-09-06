@@ -85,6 +85,8 @@ func reportError(w http.ResponseWriter, r *http.Request, err error) {
 }
 
 func main() {
+	http.Handle("/robots.txt", http.NotFoundHandler())
+	http.Handle("/favicon.ico", http.NotFoundHandler())
 	http.HandleFunc("/", handler)
 
 	port := os.Getenv("PORT")
