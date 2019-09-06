@@ -70,7 +70,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	body := fmt.Sprintf(`
-	<p>TODO</p>
+	<p>Read more about it at <a href="https://github.com/mkmik/getsum">https://github.com/mkmik/getsum</a></p>
 	<pre>%s</pre>`, template.HTMLEscapeString(goImportContent))
 
 	data := &mainTemplateData{
