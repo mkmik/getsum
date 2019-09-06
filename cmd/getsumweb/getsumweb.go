@@ -48,8 +48,8 @@ type mainTemplateData struct {
 func handler(w http.ResponseWriter, r *http.Request) {
 	var goImportContent string
 
-	if r.URL.Path == "/getsum" {
-		goImportContent = "getsum.pub git https://github.com/mkmik/getsum"
+	if strings.SplitN(r.URL.Path[1:], "/", 2)[0] == "getsum" {
+		goImportContent = "getsum.pub/getsum git https://github.com/mkmik/getsum"
 	} else if len(r.URL.Path) > 1 {
 		scheme := "https"
 		if strings.HasPrefix(r.Host, "localhost:") {
