@@ -7,7 +7,7 @@ package manifest
 
 const (
 	// CanonicalVersion is the version we expect oracles to be released at.
-	CanonicalVersion = "v0.0.3"
+	CanonicalVersion = "v0.0.4"
 )
 
 // File declares an oracle for a single file

@@ -1,7 +1,7 @@
 ## Install
 
 ```bash
-$ GO111MODULE=on go get getsum.pub/getsum@v0.0.5
+$ GO111MODULE=on go get getsum.pub/getsum@v0.0.6
 ```
 
 ## Usage
