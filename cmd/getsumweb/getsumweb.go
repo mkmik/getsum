@@ -64,7 +64,10 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		goImportContent = fmt.Sprintf("%s/%s mod %s://%s", dom, mod, scheme, r.Host)
 	}
 
-	meta := fmt.Sprintf(`<meta name="go-import" content="%s">`, goImportContent)
+	var meta string
+	if goImportContent != "" {
+		meta = fmt.Sprintf(`<meta name="go-import" content="%s">`, goImportContent)
+	}
 
 	body := fmt.Sprintf(`
 	<p>TODO</p>
