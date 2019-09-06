@@ -1,13 +1,13 @@
-// Package getsum provides types for getsum oracles.
+// Package manifest provides types for getsum oracles.
 //
 // Oracles are a Go DSL which allows us to declare hashes of external URLs.
 // They are not meant to be directly executed but instead to be parsed with go/parser
 // by the getsum cmd.
-package getsum
+package manifest
 
 const (
 	// CanonicalVersion is the version we expect oracles to be released at.
-	CanonicalVersion = "v0.0.2"
+	CanonicalVersion = "v0.0.3"
 )
 
 // File declares an oracle for a single file
