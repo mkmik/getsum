@@ -100,7 +100,7 @@ func main() {
 func ParseFromZip(zipFileName string) (*oracle, error) {
 	zf, err := os.Open(zipFileName)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("opening %q: %v", zipFileName, err)
 	}
 	defer zf.Close()
 	st, err := zf.Stat()
