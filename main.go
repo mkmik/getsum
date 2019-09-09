@@ -28,7 +28,7 @@ func run(artifactURL string, oracleModPath string) error {
 	if err != nil {
 		return err
 	}
-	_, err := sf.HashForURL(artifactURL)
+	_, err = sf.HashForURL(artifactURL)
 	if err != nil {
 		return err
 	}
