@@ -39,7 +39,7 @@ func openSumFile(u string) (io.ReadCloser, error) {
 	}
 
 	multi := *pu
-	multi.Path = path.Join(path.Dir(multi.Path), "SHA256SUM")
+	multi.Path = path.Join(path.Dir(multi.Path), "SHA256SUMS")
 	resp, err = http.Get(multi.String())
 	if err != nil {
 		return nil, err

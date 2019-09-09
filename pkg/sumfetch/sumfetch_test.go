@@ -23,7 +23,7 @@ func TestFetchSumFile(t *testing.T) {
 		}
 	}
 
-	testCases := []string{testFile + ".sha256", "SHA256SUM"}
+	testCases := []string{testFile + ".sha256", "SHA256SUMS"}
 
 	for _, tc := range testCases {
 		t.Run(tc, func(t *testing.T) {
