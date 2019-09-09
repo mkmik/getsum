@@ -8,12 +8,12 @@ import (
 
 	"getsum.pub/getsum/pkg/manifest"
 	"getsum.pub/getsum/pkg/modfetch"
-	"getsum.pub/getsum/pkg/oracle"
+	"getsum.pub/getsum/pkg/witness"
 	"getsum.pub/getsum/pkg/sumfetch"
 )
 
 var (
-	oracleModPath = flag.String("oracle", "", "override Go module (repo) of the oracle")
+	witnessModPath = flag.String("witness", "", "override Go module (repo) of the witness")
 	dryRun        = flag.Bool("dry-run", false, "Do not actually pollute SumDB")
 )
 
@@ -22,7 +22,7 @@ func usage() {
 	os.Exit(2)
 }
 
-func run(artifactURL string, oracleModPath string) error {
+func run(artifactURL string, witnessModPath string) error {
 	// let's first ensure that the URL we're about to download is supported by getsum.pub
 	sf, err := sumfetch.FetchSumFile(artifactURL)
 	if err != nil {
@@ -33,27 +33,27 @@ func run(artifactURL string, oracleModPath string) error {
 		return err
 	}
 
-	// now let's download the "oracle"
-	if oracleModPath == "" {
+	// now let's download the "witness"
+	if witnessModPath == "" {
 		var err error
-		oracleModPath, err = oracle.EncodeURLToModulePath(artifactURL)
+		witnessModPath, err = witness.EncodeURLToModulePath(artifactURL)
 		if err != nil {
 			return err
 		}
 	}
 
-	oracleZip, err := modfetch.DownloadModuleZip(oracleModPath, manifest.CanonicalVersion)
+	witnessZip, err := modfetch.DownloadModuleZip(witnessModPath, manifest.CanonicalVersion)
 	if err != nil {
 		return err
 	}
-	defer os.RemoveAll(oracleZip)
+	defer os.RemoveAll(witnessZip)
 
-	o, err := oracle.ParseFromZip(oracleZip)
+	o, err := witness.ParseFromZip(witnessZip)
 	if err != nil {
 		return err
 	}
 
-	// and print the hash for the oracle. We could use this hash to verify the download.
+	// and print the hash for the witness. We could use this hash to verify the download.
 	h, err := o.Hash(artifactURL)
 	if err != nil {
 		return err
@@ -76,7 +76,7 @@ func main() {
 	}
 	modfetch.DryRun = *dryRun
 
-	if err := run(flag.Arg(0), *oracleModPath); err != nil {
+	if err := run(flag.Arg(0), *witnessModPath); err != nil {
 		log.Fatal(err)
 	}
 }

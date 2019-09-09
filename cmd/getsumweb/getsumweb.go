@@ -13,7 +13,7 @@ import (
 	"time"
 
 	"getsum.pub/getsum/pkg/manifest"
-	"getsum.pub/getsum/pkg/oracle"
+	"getsum.pub/getsum/pkg/witness"
 	"getsum.pub/getsum/pkg/sumfetch"
 )
 
@@ -127,9 +127,9 @@ func handleProxy(w http.ResponseWriter, r *http.Request) {
 		}
 		err = json.NewEncoder(w).Encode(info)
 	case ".mod":
-		err = oracle.WriteGoMod(w, modulePath)
+		err = witness.WriteGoMod(w, modulePath)
 	case ".zip":
-		u, err := oracle.DecodeURLFromModulePath(modulePath)
+		u, err := witness.DecodeURLFromModulePath(modulePath)
 		if err != nil {
 			reportError(w, r, err)
 			return
@@ -139,7 +139,7 @@ func handleProxy(w http.ResponseWriter, r *http.Request) {
 			reportError(w, r, err)
 			return
 		}
-		err = oracle.WriteZip(w, modulePath, version, map[string]string{u: h})
+		err = witness.WriteZip(w, modulePath, version, map[string]string{u: h})
 	default:
 		fmt.Fprintf(w, "unknown extension %q\n", ext)
 	}

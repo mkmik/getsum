@@ -1,4 +1,4 @@
-package oracle
+package witness
 
 import (
 	"archive/zip"
@@ -16,24 +16,24 @@ import (
 	"strings"
 )
 
-type oracle struct {
+type witness struct {
 	hashes map[string]string
 }
 
-func newOracleForFile(url, hash string) *oracle {
-	return &oracle{
+func newWitnessForFile(url, hash string) *witness {
+	return &witness{
 		hashes: map[string]string{url: hash},
 	}
 }
 
-func (o *oracle) Hash(url string) (string, error) {
+func (o *witness) Hash(url string) (string, error) {
 	if h, ok := o.hashes[url]; ok {
 		return h, nil
 	}
 	return "", fmt.Errorf("cannot find hash for URL: %q", url)
 }
 
-// WriteGoMod writes a go.mod file for an oracle.
+// WriteGoMod writes a go.mod file for an witness.
 func WriteGoMod(w io.Writer, modulePath string) error {
 	_, err := fmt.Fprintf(w,
 		`module %s
@@ -45,7 +45,7 @@ require getsum.pub/getsum v0.0.4
 	return err
 }
 
-// WriteZip generates a Go module body containing an oracle declaring hashes for one or more URLs.
+// WriteZip generates a Go module body containing an witness declaring hashes for one or more URLs.
 func WriteZip(w io.Writer, modulePath, version string, hashes map[string]string) error {
 	z := zip.NewWriter(w)
 	defer z.Close()
@@ -95,9 +95,9 @@ func main() {
 	return err
 }
 
-// ParseFromZip parses an oracle from a zip file.
+// ParseFromZip parses an witness from a zip file.
 // The Zip file should contain a Go module, archived as defined by the goproxy protocol.
-func ParseFromZip(zipFileName string) (*oracle, error) {
+func ParseFromZip(zipFileName string) (*witness, error) {
 	zf, err := os.Open(zipFileName)
 	if err != nil {
 		return nil, fmt.Errorf("opening %q: %v", zipFileName, err)
@@ -120,10 +120,10 @@ func ParseFromZip(zipFileName string) (*oracle, error) {
 				return nil, err
 			}
 			defer m.Close()
-			return parseOracleMain(m)
+			return parseWitnessMain(m)
 		}
 	}
-	return nil, fmt.Errorf("cannot find main.go in oracle")
+	return nil, fmt.Errorf("cannot find main.go in witness")
 }
 
 // EncodeURLToModule encodes an arbitrary URL into a form that is compatible with Go module/import paths.
@@ -173,7 +173,7 @@ func fromBase32(b string) (string, error) {
 	return string(r), nil
 }
 
-func parseOracleMain(r io.Reader) (*oracle, error) {
+func parseWitnessMain(r io.Reader) (*witness, error) {
 	mainGo, err := ioutil.TempFile("", "*.go")
 	if err != nil {
 		return nil, err
@@ -197,7 +197,7 @@ func parseOracleMain(r io.Reader) (*oracle, error) {
 		return nil, fmt.Errorf("cannot find a manifest declaration in main.go")
 	}
 
-	return newOracleForFile(vis.url, vis.hash), vis.err
+	return newWitnessForFile(vis.url, vis.hash), vis.err
 }
 
 type astVisitor struct {

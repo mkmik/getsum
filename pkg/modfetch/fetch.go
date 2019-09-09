@@ -73,7 +73,7 @@ func verifyModuleZip(zipFilename, modulePath, version string) error {
 	}
 
 	if local != remote {
-		return fmt.Errorf("the oracle %q has been tampered with (%q != %q)", modulePath, local, remote)
+		return fmt.Errorf("the witness %q has been tampered with (%q != %q)", modulePath, local, remote)
 	}
 	return nil
 }
