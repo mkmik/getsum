@@ -18,5 +18,5 @@ which contains the original URL and the sha256 checksum of it.
 
 The `getsum` client then fetches this module using the https://proxy.golang.org and verifies the checksum using https://sum.golang.org. (read more about it [here](https://go.googlesource.com/proposal/+/master/design/25530-sumdb.md))
 
-Thus we neverage an existing large scale transparent log to ensure that files are indeed **immutable** the original publisher of that URL never changes the file (and the published `.sha` file).
+Thus we leverage an existing large scale transparent log to ensure that files are indeed **immutable** the original publisher of that URL never changes the file (and the published `.sha` file).
 
