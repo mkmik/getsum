@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"html/template"
-	"io"
 	"log"
 	"net/http"
 	"os"
@@ -15,6 +14,7 @@ import (
 
 	"getsum.pub/getsum/pkg/manifest"
 	"getsum.pub/getsum/pkg/oracle"
+	"getsum.pub/getsum/pkg/sumfetch"
 )
 
 var (
@@ -149,20 +149,11 @@ func handleProxy(w http.ResponseWriter, r *http.Request) {
 }
 
 func fetchHash(artifactURL string) (string, error) {
-	u := artifactURL + ".sha256"
-	resp, err := http.Get(u)
+	sf, err := sumfetch.FetchSumFile(artifactURL)
 	if err != nil {
 		return "", err
 	}
-	if resp.StatusCode != http.StatusOK {
-		return "", fmt.Errorf("got bad status %q while fetching: %s", resp.Status, u)
-	}
-	defer resp.Body.Close()
-
-	var buf strings.Builder
-	io.Copy(&buf, resp.Body)
-
-	return strings.TrimSpace(strings.SplitN(buf.String(), " ", 2)[0]), nil
+	return sf.HashForURL(artifactURL)
 }
 
 func reportError(w http.ResponseWriter, r *http.Request, err error) {
