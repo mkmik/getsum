@@ -6,6 +6,22 @@ import (
 	"testing"
 )
 
+func TestHashForUrl(t *testing.T) {
+	const (
+		testFile = "test1"
+		testHash = "d646175769c0c536e6ad6fd6987d096c559b6bf2aaf56d44591466065a6b4b70"
+	)
+
+	sf := SumFile{testFile: testHash}
+	h, err := sf.HashForURL("http://localhost:8080/foo/bar/test1?auth-token=123")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got, want := h, testHash; got != want {
+		t.Errorf("got: %q, want: %q", got, want)
+	}
+}
+
 func TestParse(t *testing.T) {
 	r := strings.NewReader(`17ff527e79ad64071f55df615836772f1164eedc7c073ce4de05d1f251683f08  sumfile.go
 86da0f39b67cc0044244b70b6398d5f9ffe96db9159533b9e13ed378d68991b4  sumfile_test.go`)

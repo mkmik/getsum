@@ -9,6 +9,7 @@ import (
 	"getsum.pub/getsum/pkg/manifest"
 	"getsum.pub/getsum/pkg/modfetch"
 	"getsum.pub/getsum/pkg/oracle"
+	"getsum.pub/getsum/pkg/sumfetch"
 )
 
 var (
@@ -22,6 +23,17 @@ func usage() {
 }
 
 func run(artifactURL string, oracleModPath string) error {
+	// let's first ensure that the URL we're about to download is supported by getsum.pub
+	sf, err := sumfetch.FetchSumFile(artifactURL)
+	if err != nil {
+		return err
+	}
+	_, err := sf.HashForURL(artifactURL)
+	if err != nil {
+		return err
+	}
+
+	// now let's download the "oracle"
 	if oracleModPath == "" {
 		var err error
 		oracleModPath, err = oracle.EncodeURLToModulePath(artifactURL)
@@ -41,6 +53,7 @@ func run(artifactURL string, oracleModPath string) error {
 		return err
 	}
 
+	// and print the hash for the oracle. We could use this hash to verify the download.
 	h, err := o.Hash(artifactURL)
 	if err != nil {
 		return err
