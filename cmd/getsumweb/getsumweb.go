@@ -13,15 +13,15 @@ import (
 	"time"
 
 	"getsum.pub/getsum/pkg/manifest"
-	"getsum.pub/getsum/pkg/witness"
 	"getsum.pub/getsum/pkg/sumfetch"
+	"getsum.pub/getsum/pkg/witness"
 )
 
 var (
 	mainTemplate = template.Must(template.New("foo").Parse(`<html lang="en">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   {{.Head}}
-  <title>Immutable Artifact Checksum Database</title>
+  <title>Public Artifact Checksums Witness</title>
   <style>
     .container {
       font-size: 1.6em;
@@ -39,7 +39,7 @@ var (
   </style>
 
   <div class="container">
-  <h1>Immutable Artifact Checksum Database</h1>
+  <h1>Public Artifact Checksums Witness</h1>
   {{.Body}}
   </div>
 </html>
@@ -71,8 +71,10 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	body := fmt.Sprintf(`
+	<p>This server observes and records checksums of publicly downloadable artifacts. It offers verifiable proof that the claimed observations are immutable, i.e. this server cannot serve a different claim in the future.</p>
+	<p>It can be used to detect URLs whose content breaks immutability guarantees (e.g. usually versioned software releases).</p>
 	<p>Read more about it at <a href="https://github.com/mkmik/getsum">https://github.com/mkmik/getsum</a></p>
-	<pre>%s</pre>`, template.HTMLEscapeString(goImportContent))
+	<pre>%s</pre>`, template.HTMLEscapeString(meta))
 
 	data := &mainTemplateData{
 		Head: template.HTML(meta),

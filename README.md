@@ -1,3 +1,10 @@
+# Public Artifact Checksums Witness
+
+This server observes and records checksums of publicly downloadable artifacts.
+It offers verifiable proof that the claimed observations are immutable, i.e. this server cannot serve a different claim in the future.
+
+It can be used to detect URLs whose content breaks immutability guarantees (e.g. usually versioned software releases).
+
 ## Install
 
 ```bash

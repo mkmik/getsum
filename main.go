@@ -8,13 +8,13 @@ import (
 
 	"getsum.pub/getsum/pkg/manifest"
 	"getsum.pub/getsum/pkg/modfetch"
-	"getsum.pub/getsum/pkg/witness"
 	"getsum.pub/getsum/pkg/sumfetch"
+	"getsum.pub/getsum/pkg/witness"
 )
 
 var (
 	witnessModPath = flag.String("witness", "", "override Go module (repo) of the witness")
-	dryRun        = flag.Bool("dry-run", false, "Do not actually pollute SumDB")
+	dryRun         = flag.Bool("dry-run", false, "Do not actually pollute SumDB")
 )
 
 func usage() {
