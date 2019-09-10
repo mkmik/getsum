@@ -13,11 +13,11 @@ func TestEncodeURLToModulePath(t *testing.T) {
 	}{
 		{
 			url: "https://github.com/bitnami-labs/sealed-secrets/releases/download/v0.8.3/kubeseal-darwin-amd64",
-			enc: "getsum.pub/https/github.com/2riLzdMNGVoqSNSjL/jRZemZEK13AQcxMKrSv/L8nc6eyCPri/HoMGCnPUSbu/21rYnBBbQ/7cFcbfzURYBhwQZ2xT8bqaVa9d1zB",
+			enc: "getsum.pub/https/github.com/mjuxi3tbnvus23dbmjzq/onswc3dfmqwxgzldojsxi4y/ojswyzlbonsxg/mrxxo3tmn5qwi/oyyc4obogm/nn2wezltmvqwyllemfzho2lofvqw2zbwgq",
 		},
 		{
 			url: "http://foobar.com/a/b",
-			enc: "getsum.pub/http/foobar.com/2g/2h",
+			enc: "getsum.pub/http/foobar.com/me/mi",
 		},
 		{
 			url: "https://github.com",

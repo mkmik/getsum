@@ -2,6 +2,7 @@ package witness
 
 import (
 	"archive/zip"
+	"encoding/base32"
 	"fmt"
 	"go/ast"
 	"go/parser"
@@ -13,8 +14,6 @@ import (
 	"path"
 	"strconv"
 	"strings"
-
-	"github.com/mr-tron/base58"
 )
 
 type witness struct {
@@ -136,7 +135,7 @@ func EncodeURLToModulePath(u string) (string, error) {
 
 	rest := strings.Split(ur.Path, "/")[1:]
 	for i := range rest {
-		rest[i] = toBase58(rest[i])
+		rest[i] = toBase32(rest[i])
 	}
 	p := fmt.Sprintf("getsum.pub/%s/%s/%s", ur.Scheme, ur.Host, strings.Join(rest, "/"))
 	if strings.HasSuffix(p, "/") {
@@ -151,7 +150,7 @@ func DecodeURLFromModulePath(modulePath string) (string, error) {
 	rest := c[3:]
 	var err error
 	for i := range rest {
-		rest[i], err = fromBase58(rest[i])
+		rest[i], err = fromBase32(rest[i])
 		if err != nil {
 			return "", err
 
@@ -160,12 +159,14 @@ func DecodeURLFromModulePath(modulePath string) (string, error) {
 	return fmt.Sprintf("%s://%s/%s", c[1], c[2], strings.Join(rest, "/")), nil
 }
 
-func toBase58(s string) string {
-	return base58.Encode([]byte(s))
+var base32Encoding = base32.StdEncoding.WithPadding(base32.NoPadding)
+
+func toBase32(s string) string {
+	return strings.ToLower(base32Encoding.EncodeToString([]byte(s)))
 }
 
-func fromBase58(b string) (string, error) {
-	r, err := base58.Decode(b)
+func fromBase32(b string) (string, error) {
+	r, err := base32Encoding.DecodeString(strings.ToUpper(b))
 	if err != nil {
 		return "", fmt.Errorf("error while decoding %q: %v", b, err)
 	}
