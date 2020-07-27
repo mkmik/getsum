@@ -1,8 +1,11 @@
 package main
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
 	"flag"
 	"fmt"
+	"io"
 	"log"
 	"os"
 
@@ -15,10 +18,12 @@ import (
 var (
 	witnessModPath = flag.String("witness", "", "override Go module (repo) of the witness")
 	dryRun         = flag.Bool("dry-run", false, "Do not actually pollute SumDB")
+	check          = flag.String("c", "", "Check whether an already downloaded file matches the checksum")
 )
 
 func usage() {
 	fmt.Fprintf(os.Stderr, "usage: getsum ....\n")
+	flag.PrintDefaults()
 	os.Exit(2)
 }
 
@@ -59,7 +64,23 @@ func run(artifactURL string, witnessModPath string) error {
 		return err
 	}
 
-	fmt.Println(h)
+	if *check != "" {
+		fh := sha256.New()
+		f, err := os.Open(*check)
+		if err != nil {
+			return err
+		}
+		defer f.Close()
+		io.Copy(fh, f)
+
+		h2 := hex.EncodeToString(fh.Sum(nil))
+		if h != h2 {
+			fmt.Fprintf(os.Stderr, "checksum mismatch: %q -> %q, transparency log -> %q", h2, h)
+		}
+	} else {
+		fmt.Println(h)
+	}
+
 	return nil
 }
 
