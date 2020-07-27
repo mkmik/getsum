@@ -27,3 +27,14 @@ The `getsum` client then fetches this module using the https://proxy.golang.org 
 
 Thus we leverage an existing large scale transparent log to ensure that files are indeed **immutable** the original publisher of that URL never changes the file (and the published `.sha` file).
 
+### Verify
+
+`getsum` doesn't download the file, you need to use a tool like `curl` or `wget`,
+but it can verify whether the file you just downloaded matches the published hash and that the hash
+hasn't been modified.
+
+```sh
+$ wget https://some.com/url/to/a/file \
+  && getsum -c file https://some.com/url/to/a/file \
+  && echo "good file, continue"
+```
