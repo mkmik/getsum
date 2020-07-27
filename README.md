@@ -8,7 +8,7 @@ It can be used to detect URLs whose content breaks immutability guarantees (e.g.
 ## Install
 
 ```bash
-$ GO111MODULE=on go get getsum.pub/getsum@v0.0.7
+$ GO111MODULE=on go get getsum.pub/getsum@latest
 ```
 
 ## Usage
