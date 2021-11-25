@@ -75,7 +75,7 @@ func run(artifactURL string, witnessModPath string) error {
 
 		h2 := hex.EncodeToString(fh.Sum(nil))
 		if h != h2 {
-			fmt.Fprintf(os.Stderr, "checksum mismatch: %q -> %q, transparency log -> %q", h2, h)
+			fmt.Fprintf(os.Stderr, "checksum mismatch: %q -> %q, transparency log -> %q", h2, h, artifactURL)
 		}
 	} else {
 		fmt.Println(h)
