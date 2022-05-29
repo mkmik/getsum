@@ -1,4 +1,4 @@
-FROM golang:1.18@sha256:9dafe59cb3b7a492ef75295816b9f4a0f42ec8c494035212c8519ecc4f79f1d2 as builder
+FROM golang:1.18@sha256:70282b18b7cfd44c3fe3d8af949838ddb981890be9eee5feca4026a397b566bd as builder
 
 WORKDIR /src
 
