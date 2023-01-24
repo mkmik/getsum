@@ -7,7 +7,7 @@ COPY . .
 RUN go build ./cmd/getsumweb
 
 # Ideally we could use the "static" flavour but let's first start with the base flavour (which has glibc).
-FROM gcr.io/distroless/base@sha256:d71d0e6156b314d718122e6cd01a09175ebe9b0f9e97c68c8b68c85cd357e27a
+FROM gcr.io/distroless/base@sha256:0b9ec3cfe2fef19e5514290c666e0bb3fca2baf61df05550b4712ddaea1d3693
 MAINTAINER Marko Mikulicic <mmikulicic@gmail.com>
 COPY --from=builder /src/getsumweb /usr/local/bin/
 
