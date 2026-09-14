@@ -1,8 +1,8 @@
 module getsum.pub/getsum
 
-go 1.18
+go 1.26.0
 
-require golang.org/x/mod v0.12.0
+require golang.org/x/mod v0.41.0
 
 require (
 	golang.org/x/crypto v0.1.0 // indirect
